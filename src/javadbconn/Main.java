@@ -17,14 +17,8 @@ public class Main
 {
 public static void main(String[] args) throws Exception 
     {
-    
-    //Scanner sc = new Scanner(System.in);
-    //System.out.println("Create the inventory table?");
-    //String a = sc.nextLine();
-    
     createTable(); 
     createUI();
-
     }
 
 public static void createTable() throws Exception 
@@ -47,13 +41,13 @@ public static void createUI()
         JFrame frame1 = new JFrame("Inventory Checker");
         frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame1.setSize(750, 500);
-        int count = conn.count();
+        int count = conn.count("Select count(*) from inventory");
         //Creating the MenuBar and adding components
         JMenuBar mb = new JMenuBar();
         JMenu m1 = new JMenu("Options");
         
         mb.add(m1);
-        int i = 0;
+        //int i = 0;
         String[] products = conn.getProd();
         
         JMenuItem addItem = new JMenuItem("Add Item");
@@ -74,11 +68,12 @@ public static void createUI()
         JButton search = new JButton("Search");
         //JButton reset = new JButton("Reset");
         //p1.add(allInv);
-        p2.add(label);
-        p2.add(options);
-        p2.add(search);
-        sp.add(p2);
+        p1.add(label);
+        p1.add(options);
+        p1.add(search);
+        sp.setLayout(new GridLayout(0,1));
         sp.add(p1);
+        //sp.add(p2);
         //panel.add(reset);
 
         // Text Area at the Center
@@ -89,6 +84,27 @@ public static void createUI()
         frame1.getContentPane().add(BorderLayout.CENTER, sp);
         frame1.getContentPane().add(BorderLayout.SOUTH, allInv);
         frame1.setVisible(true);
+        
+        search.addActionListener( new ActionListener() 
+        {
+            public void actionPerformed(ActionEvent e) 
+            {   
+                p2.removeAll();
+                
+                String[] cols  =  conn.getCols();
+                int colNo = cols.length;
+                String p = options.getSelectedItem().toString();
+                int rows = conn.count("Select count(*) from inventory where prodName = '"+p+"';");
+                String query = "Select * from inventory where prodName = '"+p+"';";
+                String[][] inv = conn.getInv(query,rows);
+                
+                JTable tb = new JTable(inv, cols);
+                //tb.setBounds(30, 40, 300, 200);
+                
+                sp.add(BorderLayout.CENTER, tb);
+                sp.revalidate();
+            }            
+        });
         
         addItem.addActionListener( new ActionListener() // Add Function
         {
@@ -127,9 +143,7 @@ public static void createUI()
                 nf.add(BorderLayout.NORTH, p1);
                 nf.add(BorderLayout.CENTER, p2);
                 nf.add(BorderLayout.SOUTH, p3);
-                
-                //nf.getContentPane().add(BorderLayout.PAGE_END, p2);
-                               
+                              
                 confirm.addActionListener( new ActionListener() 
                 {
                 @Override
@@ -153,7 +167,7 @@ public static void createUI()
             @Override
             public void actionPerformed(ActionEvent e) 
             {
-                int rows = conn.count();
+                int rows = conn.count("Select count(*) from inventory");
                 String[] cols  =  conn.getCols();
                 int colNo = cols.length;
                 System.out.println("rows: "+rows);
@@ -161,29 +175,17 @@ public static void createUI()
                 JPanel p = new JPanel();
                 p.setLayout(new GridLayout(0,colNo));
                 String query = "Select * from inventory";
-                String[][] inv = conn.fiQuery(query);
+                String[][] inv = conn.getInv(query,rows);
                 
                 JFrame nf = new JFrame("Full Invenory");
                 nf.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
                 nf.setSize(400, 400);
                 nf.setVisible(true);
-                for(int j = 0; j < colNo; j++)
-                    {
-                        JLabel temp = new JLabel(cols[i]);
-                        temp.setFont(temp.getFont().deriveFont(Font.BOLD, 14f));
-                        p.add(temp);
-                    }
                 
-                for (int i = 0; i < rows; i++)
-                {   
-                    for(int j = 0; j < colNo; j++)
-                    {
-                        JLabel temp = new JLabel(inv[i][j]);
-                        p.add(temp);
-                    }
+                JTable jt = new JTable(inv, cols);
+                
 
-                }
-                nf.add(BorderLayout.CENTER, new JScrollPane(p));
+                nf.add(BorderLayout.CENTER, new JScrollPane(jt));
             }
         });
         
@@ -265,20 +267,8 @@ public static void createUI()
                     nf.hide();
                     }            
                 });                        
-                }
-            });
-        }
-
-
- 
-    public static void newFrame(String name){
-        JFrame nf = new JFrame(name);
-        nf.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        nf.setSize(400, 400);
-        nf.setVisible(true);
-        
-        
+            }
+        });
     }
-
 }
 

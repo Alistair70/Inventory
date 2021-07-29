@@ -44,16 +44,17 @@ public class conn
     finally{System.out.println("Query execution complete");}
     }  
     
-    public static String[][]  fiQuery(String q)
+    public static String[][]  getInv(String q1, int rows)
     {
-        int count = count();
-        String[][] inv = new String[count][3];
+        
+        String[][] inv = new String[rows][3];
+        
         int i = 0;
         
         try
         {
             Connection con = conn.getConnection();
-            PreparedStatement query = con.prepareStatement(q);
+            PreparedStatement query = con.prepareStatement(q1);
             ResultSet res = query.executeQuery();
             
             while(res.next())
@@ -62,7 +63,7 @@ public class conn
                 inv[i][0] = res.getString("prodName");
                 inv[i][1] = Integer.toString(res.getInt("prodAmt"));
                 inv[i][2] = Double.toString(res.getDouble("prodPrice"));
-                //System.out.println(j);
+                
                 i++;
                 
             }
@@ -75,10 +76,10 @@ public class conn
     return inv;
     }
     
-    public static int count()
+    public static int count(String q)
     {
     int rows = 0; 
-    String q = "Select count(*) from inventory";
+    
         {
         try{
             Connection con = conn.getConnection();
@@ -97,7 +98,8 @@ public class conn
     
     public static String[] getProd()
     {
-        int rows = count();
+        String q = "";
+        int rows = count("Select count(*) from inventory");
         String[] prod = new String[rows];
         int i = 0;
         int j = 0;
