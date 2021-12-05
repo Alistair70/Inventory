@@ -1,2 +1,2 @@
 # Inventory
-Inventory manager with SQL and basis UI
+Inventory manager with SQL and basic UI
